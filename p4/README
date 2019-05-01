@@ -1,0 +1,123 @@
+This project does not work 100%
+
+Point 160. Due at scheduled final Dec 11, 10am. Some students need to demonstrate to get a grade, the list will be posted by Dec 10. No late submissions without approval.
+
+Failure to show will result in 0 points. Others are welcome to come in.
+Submission command
+
+/accounts/classes/janikowc/submitProject/submit_cs42801_P4 SubmitFileOrDirectory
+
+Invocation
+
+comp [file]
+
+where file is as before. Wrong invocations will not be graded.
+Details
+
+The program is to parse the input, generate a parse tree, perform static semantics, and then generate a target file. Any error should display detailed message, including line number if available (depending on scanner).
+
+The target name should be
+
+    out.asm if keyboard input
+    file.asm if file input. The base name matches that of the input file
+
+The program has 2 parts to be properly generated:
+
+    Code generation
+        100
+    Storage allocation - Local (60) or Global option (40)
+        Global - all variables allocated globally.
+        Local - variables outside of a block are scoped in the entire program, variables in a block are scoped in that block
+
+Note that this does not have to match your static semantics but local storage will use the same mechanisms as local semantics.
+
+An included README.txt file must say Storage=Global or Local on the first line. Otherwise global will be assumed.
+
+Temporary variables can processed as global scope even when doing local scoping for user variables.
+
+Upon success, only display the name of the target file. Upon error and the error message, no other display and no target should be generated.
+
+
+P4 Runtime Semantics
+Runtime Semantics
+
+    Basic semantics as in C - program executes sequentially from the beginning to the end, one statement at a time
+    Conditional statement is like the else-less if statement in C
+    Loop statement is like the while loop in C
+    Assignment evaluates the expression on the right and assigns to the ID on the left
+    +-* are standard arithmetical, / is integer division, unary - is negation
+    Relational and arithmetical operators have the standard meaning except:
+        < and > are less than and greater than
+        < = is less equal
+        > = is greater equal
+        = = is NOT equal
+        = is equal
+    IO reads/prints a 2-byte signed integer
+    All data is 2-byte signed integer
+
+Data
+
+    All data is 2-byte signed integers
+    Assume no overflow in operations
+
+Target Language
+
+    VM ACCumulator assembly language as given
+
+
+P4 Code Generation Support
+Code generation
+
+    The parse tree is equivalent to the program in left to right traversal (skipping syntactic tokens if not stored in the tree). Therefore, perform left to right traversal to generate the code
+    Some nodes are
+        code generating - most likely only those that have a token(s)
+        not code generating - most likely without tokens
+            if no children, return
+            if children, continue traversal then return
+    When visiting code generating node
+        some actions can be preorder, some inorder, some postorder
+        temporary variables may be needed to save ACCumulator - generate global pool variables and allocate in storage allocation as global
+        if value is produced, always leave the result in the ACCumulator
+        if value was produced, find it in the ACCumulator
+        each node-kind generates the same code
+            regardless of parents and children
+            may be one of multiple cases
+            the only difference may come from the token found in the node
+    At the end of the traversal, print STOP to target (to be followed by global variables+temporaries in storage allocation)
+    Variables will require
+        variable creation upon definition - see storage allocation
+        variable access upon use  - global option or variable just uses the variable name, these parts may have to be redone in storage allocation for local variables
+
+
+P4 Storage Allocation Support
+Storage allocation
+
+    All storage is 2-byte signed
+    Storage needed for
+        temporaries can be added to to global variables pool or allocated locally if using local scoping. I would suggest global. We can assume not to use variables named T# or V# in the source, reserving such names for temporary variables.
+        there is no need to optimize reducing the number of temporaries
+        program variables
+        temporaries (e.g., if accumulator needs to be saved for later use)
+    Global option
+        Storage allocation should follow static semantics and code generation
+        Issue storage directive for every global variable and every temporary, using the global storage directive in the virtual machine, after the STOP instruction
+    Local option
+        code generation discussed separately
+        storage allocation
+            STACKR n if this is reading access
+            STACKW n if this is writing access
+            every push() must be accompanied by PUSH in the target
+            every pop() must be accompanied by POP in the target
+            every find() returning n>=0 (when used for data use, this means this is local variable) should be accompanied by
+        Global variables and temporaries can be generated as in the global option, temporaries could also be local, or all could be local
+        Local variable should be allocated on the virtual machine's system stack during the single pass which performs static semantics and code generation
+        Modify the static semantics by adding code generation in the same pass
+        Note that any <in> node with a token, resulting from "Read into a variable" source statement has to be changed if the variable is local - because input can only be into RAM which is global pool variable.
+            For a global variable, you just print "READ TokenVariable" to target
+            For a local variable, you need to
+                Create temporary
+                Print "READ Temporary" to target
+                Print "LOAD Temporary" to target to bring the read data to ACC
+                Print "STACKW #" to target to put the read data on the stack, where #=find(TokenVariable)
+        Similar change needs to be made in R node with identifier token if the variable is local - it needs to fetched off the stack using STACKR n, where n=find(variable) instead of LOAD variable
+
