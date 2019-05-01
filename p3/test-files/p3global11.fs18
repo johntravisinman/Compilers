@@ -1,0 +1,6 @@
+void
+let x = 2
+let z = 3
+begin
+  print ( x ) :
+end

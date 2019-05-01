@@ -1,0 +1,33 @@
+Submission command
+
+/accounts/classes/janikowc/submitProject/submit_cs42801_P4 SubmitFileOrDirectory
+
+Invocation
+
+comp [file]
+
+where file is as before. Wrong invocations will not be graded.
+Details
+
+The program is to parse the input, generate a parse tree, perform static semantics, and then generate a target file. Any error should display detailed message, including line number if available (depending on scanner).
+
+The target name should be
+
+    out.asm if keyboard input
+    file.asm if file input. The base name matches that of the input file
+
+The program has 2 parts to be properly generated:
+
+    Code generation
+        100
+    Storage allocation - Local (60) or Global option (40)
+        Global - all variables allocated globally.
+        Local - variables outside of a block are scoped in the entire program, variables in a block are scoped in that block
+
+Note that this does not have to match your static semantics but local storage will use the same mechanisms as local semantics.
+
+An included README.txt file must say Storage=Global or Local on the first line. Otherwise global will be assumed.
+
+Temporary variables can processed as global scope even when doing local scoping for user variables.
+
+Upon success, only display the name of the target file. Upon error and the error message, no other display and no target should be generated.

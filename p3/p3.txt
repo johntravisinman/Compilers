@@ -1,0 +1,32 @@
+
+Static Semantics
+
+Total 100 points.
+
+/accounts/classes/janikowc/submitProject/submit_cs42801_P3 SubmitFileOrDirectory
+
+Invocation:
+> statSem [file]
+with file as before with implicit extension .fs18
+Wrong invocations will not be graded.
+
+Graded 90% execution 10% structure/standards.
+
+Stat Semantics Definition
+
+    The only static semantics we impose that can be processed by the compiler (static) are proper use of variables.
+
+    Variables
+        Variables have to be defined before used first time (must satisfy syntax too)
+        Variable name can only be defined once in a scope but can be reused in another scope. There are two options for scope
+
+Two options for variable scope. You must include README.txt file listing on the first line either Global or Local to indicate your chosen scope option. If this info is missing projects will be tested and graded as global.
+
+    Global option for variables (75)
+        There is only one scope, the global scope, in the case, regardless of where variable is defined
+    Local option for variables (100)
+        Variables outside of a block are global
+        Variables in a given block are scoped in this block
+        Rules as in C (smaller scope hides the outer/global scope variable)
+
+Do not display the tree any more.
